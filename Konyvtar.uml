@@ -1,0 +1,105 @@
+
+@startuml
+title Library Management System - UML Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Konyv {
+    - isbn: String
+    - cim: String
+    - szerzo: String
+    - kiadasEve: int
+    - peldanySzam: int
+    + getIsbn(): String
+    + getCim(): String
+    + getSzerzo(): String
+    + getKiadasiEv(): int
+    + getPeldanySzam(): int
+    + csokkentPeldany(): void
+    + novelPeldany(): void
+    + equals(obj: Object): boolean
+    + hashCode(): int
+    + toString(): String
+}
+
+class Olvaso {
+    - olvasojegySzam: String
+    - nev: String
+    + getOlvasojegySzam(): String
+    + getNev(): String
+    + equals(obj: Object): boolean
+    + hashCode(): int
+    + toString(): String
+}
+
+class Kolcsonzes {
+    - konyv: Konyv
+    - olvaso: Olvaso
+    - datum: LocalDate
+    - hatarido: LocalDate
+    - visszahozasDatum: LocalDate
+    + getKonyv(): Konyv
+    + getOlvaso(): Olvaso
+    + getDatum(): LocalDate
+    + getHatarido(): LocalDate
+    + getVisszahozasDatum(): LocalDate
+    + visszaVanHozva(): boolean
+    + visszahoz(datum: LocalDate): void
+    + betoltottVisszahozas(datum: LocalDate): void
+    + kesedelmesNapok(vizsgaltDatum: LocalDate): long
+    + kesedelmiDij(vizsgaltDatum: LocalDate, napiDij: long): long
+    + toString(): String
+}
+
+class Konyvtar {
+    - konyvek: Map<String, Konyv>
+    - olvasok: Map<String, Olvaso>
+    - kolcsonzesek: List<Kolcsonzes>
+    + addKonyv(konyv: Konyv): void
+    + addOlvaso(olvaso: Olvaso): void
+    + kolcsonoz(konyv: Konyv, olvaso: Olvaso, datum: LocalDate, napok: int): void
+    + visszahoz(kolcsonzes: Kolcsonzes, datum: LocalDate): long
+    + keresCimVagySzerzo(szoveg: String): List<Konyv>
+    + rendezKonyvekCimSzerint(): List<Konyv>
+    + rendezKonyvekEvSzerint(): List<Konyv>
+    + getKonyvek(): List<Konyv>
+    + getOlvasok(): List<Olvaso>
+    + getKolcsonzesek(): List<Kolcsonzes>
+}
+
+interface KonyvtarTar {
+    + ment(konyvtar: Konyvtar, fajl: Path): void
+    + betolt(fajl: Path): Konyvtar
+}
+
+class SzerializaciosTar {
+    + ment(konyvtar: Konyvtar, fajl: Path): void
+    + betolt(fajl: Path): Konyvtar
+}
+
+class CsvTar {
+    + ment(konyvtar: Konyvtar, fajl: Path): void
+    + betolt(fajl: Path): Konyvtar
+}
+
+class KonyvtarProgram {
+    - BE: Scanner
+    - NAPI_DIJ: long
+    + main(args: String[]): void
+}
+
+Konyvtar "1" o-- "0..*" Konyv : nyilvantartja
+Konyvtar "1" o-- "0..*" Olvaso : nyilvantartja
+Konyvtar "1" o-- "0..*" Kolcsonzes : kezeli
+
+Kolcsonzes "0..*" --> "1" Konyv : konyv
+Kolcsonzes "0..*" --> "1" Olvaso : olvaso
+
+KonyvtarTar <|.. SzerializaciosTar
+KonyvtarTar <|.. CsvTar
+
+KonyvtarProgram ..> Konyvtar : hasznalja
+KonyvtarProgram ..> KonyvtarTar : ment es betolt
+
+@enduml
